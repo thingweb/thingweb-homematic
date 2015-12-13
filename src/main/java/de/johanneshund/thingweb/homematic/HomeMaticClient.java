@@ -2,21 +2,19 @@ package de.johanneshund.thingweb.homematic;
 
 import de.johanneshund.thingweb.homematic.impl.HMDataPoint;
 import de.johanneshund.thingweb.homematic.impl.HMDevice;
-import de.johanneshund.thingweb.homematic.impl.HMValueTypes;
 import de.johanneshund.thingweb.homematic.util.DomHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.net.URL;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
@@ -29,7 +27,7 @@ public class HomeMaticClient {
     private final String PREFIX;
     private final DocumentBuilder builder;
 
-    private final Set<HMDevice> devices = new CopyOnWriteArraySet<HMDevice>();
+    private final Set<HMDevice> devices = new CopyOnWriteArraySet<>();
 
     public HomeMaticClient(String host) throws ParserConfigurationException {
         this.PREFIX = "http://" + host + "/addons/xmlapi/";
@@ -40,12 +38,36 @@ public class HomeMaticClient {
         return new HomeMaticClient(host);
     }
 
+    public static void main(String args[]) throws ParserConfigurationException, IOException, SAXException {
+        HomeMaticClient client = new HomeMaticClient("192.168.178.20");
+        client.readTopology();
+
+//        String devs = client.devices.stream()
+//                .map(HMDevice::toString)
+//                .collect(Collectors.joining("\n--------\n"));
+
+        //log.info("devices: {}",devs);
+
+        List<HMDataPoint> points = client.collectDataPoints().stream()
+                .filter(dp -> dp.getType().equals("LEVEL") && dp.getDevice().getName().contains("Büro"))
+                .collect(Collectors.toList());
+
+        points.stream().forEach(dp -> dp.change("0.2"));
+
+        log.info("datapoints:\n{}", points.stream()
+                .map(dp ->
+                        dp.getIse_id() + ": " + dp.getType() + " of " + dp.getDevice().getName())
+                .collect(Collectors.joining("\n")));
+
+
+    }
+
     public void readTopology() throws IOException, SAXException {
         Element root = fetchReport("statelist");
 
         log.debug("Root element {}", root.getNodeName());
         DomHelper.forEachNode(root.getChildNodes(),
-                (deviceNode) ->  devices.add(HMDevice.fromNode(deviceNode)));
+                (deviceNode) -> devices.add(HMDevice.fromNode(deviceNode, this)));
 
         // device type is only listed in devicelist, matching via ise_id
         Map<Integer,String> devTypes = new HashMap<>();
@@ -57,6 +79,12 @@ public class HomeMaticClient {
                 )
         );
         devices.forEach((hmDevice -> hmDevice.setType(devTypes.get(hmDevice.getIse_id()))));
+    }
+
+    public void changeValue(int ise_id, String value) throws IOException {
+        final String uri = "%s/statechange.cgi?ise_id=%s&new_value=%s";
+        URL url = new URL(String.format(uri, PREFIX, ise_id, value));
+        url.openStream();
     }
 
     private Element fetchReport(String script) throws SAXException, IOException {
@@ -74,25 +102,6 @@ public class HomeMaticClient {
                 .map((hmChannel -> hmChannel.getDataPoints().values()))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
-    }
-
-
-    public static void main(String args[]) throws ParserConfigurationException, IOException, SAXException {
-        HomeMaticClient client = new HomeMaticClient("192.168.178.20");
-        client.readTopology();
-
-        String devs = client.devices.stream()
-                .map(HMDevice::toString)
-                .collect(Collectors.joining("\n--------\n"));
-
-        log.info("devices: {}",devs);
-
-        String dpstr =client.collectDataPoints().stream()
-                .map(HMDataPoint::toString)
-                .collect(Collectors.joining("\n"));
-
-        log.info("datapoints:\n{}",dpstr);
-
     }
 }
 

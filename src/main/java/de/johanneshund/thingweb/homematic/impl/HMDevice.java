@@ -1,5 +1,6 @@
 package de.johanneshund.thingweb.homematic.impl;
 
+import de.johanneshund.thingweb.homematic.HomeMaticClient;
 import de.johanneshund.thingweb.homematic.util.DomHelper;
 import org.w3c.dom.Node;
 
@@ -12,16 +13,34 @@ import java.util.stream.Collectors;
  * Created by Johannes on 11.12.2015.
  */
 public class HMDevice extends HMData {
+    private final HomeMaticClient client;
     private String type;
-
     private List<HMChannel> channels = new LinkedList<>();
 
-    protected HMDevice(Node node) {
+    protected HMDevice(Node node, HomeMaticClient homeMaticClient) {
         super(node);
+        this.client = homeMaticClient;
+    }
+
+    public static HMDevice fromNode(Node deviceNode, HomeMaticClient homeMaticClient) {
+        HMDevice device = new HMDevice(deviceNode, homeMaticClient);
+
+        DomHelper.forEachNode(deviceNode.getChildNodes(),
+                (channel) -> device.addChannel(HMChannel.fromNode(channel, device)));
+
+        return device;
+    }
+
+    public HomeMaticClient getClient() {
+        return client;
     }
 
     public String getType() {
         return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public List<HMChannel> getChannels() {
@@ -30,21 +49,6 @@ public class HMDevice extends HMData {
 
     public void addChannel(HMChannel channel) {
         channels.add(channel);
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public static HMDevice fromNode(Node deviceNode) {
-        HMDevice device = new HMDevice(deviceNode);
-
-        DomHelper.forEachNode(deviceNode.getChildNodes(),
-                (channel) -> device.channels.add(HMChannel.fromNode(channel)));
-
-        String name = device.channels.get(0).getDataPoints().entrySet().iterator().next().getValue().name;
-
-        return device;
     }
 
     @Override
