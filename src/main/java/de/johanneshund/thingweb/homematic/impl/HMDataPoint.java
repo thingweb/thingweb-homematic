@@ -53,6 +53,16 @@ public class HMDataPoint extends HMData {
         }
     }
 
+    public String read() {
+        try {
+            log.debug("reading data point {}...", this.name);
+            return device.getClient().readValue(this);
+        } catch (IOException e) {
+            log.warn("FAILED", e);
+            return null;
+        }
+    }
+
     public HMDevice getDevice() {
         return device;
     }

@@ -1,5 +1,6 @@
 package de.johanneshund.thingweb.homematic;
 
+import de.johanneshund.thingweb.homematic.devtypes.Blinds;
 import de.johanneshund.thingweb.homematic.impl.HMDataPoint;
 import de.johanneshund.thingweb.homematic.impl.HMDevice;
 import de.johanneshund.thingweb.homematic.util.DomHelper;
@@ -42,12 +43,26 @@ public class HomeMaticClient {
         HomeMaticClient client = new HomeMaticClient("192.168.178.20");
         client.readTopology();
 
-//        String devs = client.devices.stream()
-//                .map(HMDevice::toString)
-//                .collect(Collectors.joining("\n--------\n"));
+        String devs = client.devices.stream()
+                .map(HMDevice::toString)
+                .collect(Collectors.joining("\n--------\n"));
 
         //log.info("devices: {}",devs);
 
+        //closeRoom(client);
+
+        client.devices.stream()
+                .filter(dev -> dev.getType().equals("HM-LC-Bl1-FM"))
+                .filter(dev -> dev.getName().contains("Büro"))
+                .map(Blinds::wrap)
+                .forEach(Blinds::close);
+//                .map(Blinds::toString)
+//                .collect(Collectors.joining("\n"));
+
+        //log.info(out);
+    }
+
+    private static void closeRoom(HomeMaticClient client) {
         List<HMDataPoint> points = client.collectDataPoints().stream()
                 .filter(dp -> dp.getType().equals("LEVEL") && dp.getDevice().getName().contains("Büro"))
                 .collect(Collectors.toList());
@@ -58,12 +73,10 @@ public class HomeMaticClient {
                 .map(dp ->
                         dp.getIse_id() + ": " + dp.getType() + " of " + dp.getDevice().getName())
                 .collect(Collectors.joining("\n")));
-
-
     }
 
     public void readTopology() throws IOException, SAXException {
-        Element root = fetchReport("statelist");
+        Element root = fetchReport("statelist.cgi");
 
         log.debug("Root element {}", root.getNodeName());
         DomHelper.forEachNode(root.getChildNodes(),
@@ -71,7 +84,7 @@ public class HomeMaticClient {
 
         // device type is only listed in devicelist, matching via ise_id
         Map<Integer,String> devTypes = new HashMap<>();
-        root = fetchReport("devicelist");
+        root = fetchReport("devicelist.cgi");
         DomHelper.forEachNode(root.getChildNodes(),
                 (devNode) -> devTypes.put(
                         Integer.parseInt(DomHelper.getAttributeValue(devNode,"ise_id")),
@@ -87,8 +100,24 @@ public class HomeMaticClient {
         url.openStream();
     }
 
+    public String readValue(int datapoint_id) throws IOException {
+        final String uri = "state.cgi?datapoint_id=%s";
+        try {
+            Element root = fetchReport(String.format(uri, datapoint_id));
+            if (!root.hasChildNodes())
+                return null;
+            return DomHelper.getAttributeValue(root.getFirstChild(), "value");
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String readValue(HMDataPoint dp) throws IOException {
+        return readValue(dp.getIse_id());
+    }
+
     private Element fetchReport(String script) throws SAXException, IOException {
-        final String uri = PREFIX + script + ".cgi";
+        final String uri = PREFIX + script;
         final Document doc = builder.parse(uri);
         doc.normalizeDocument();
         return doc.getDocumentElement();
