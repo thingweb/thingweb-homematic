@@ -1,6 +1,5 @@
 package de.johanneshund.thingweb.homematic;
 
-import de.johanneshund.thingweb.homematic.devtypes.Blinds;
 import de.johanneshund.thingweb.homematic.impl.HMDataPoint;
 import de.johanneshund.thingweb.homematic.impl.HMDevice;
 import de.johanneshund.thingweb.homematic.util.DomHelper;
@@ -15,7 +14,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
@@ -27,7 +29,6 @@ public class HomeMaticClient {
     protected final static Logger log = LoggerFactory.getLogger(HomeMaticClient.class);
     private final String PREFIX;
     private final DocumentBuilder builder;
-
     private final Set<HMDevice> devices = new CopyOnWriteArraySet<>();
 
     public HomeMaticClient(String host) throws ParserConfigurationException {
@@ -39,40 +40,19 @@ public class HomeMaticClient {
         return new HomeMaticClient(host);
     }
 
-    public static void main(String args[]) throws ParserConfigurationException, IOException, SAXException {
-        HomeMaticClient client = new HomeMaticClient("192.168.178.20");
-        client.readTopology();
-
-        String devs = client.devices.stream()
-                .map(HMDevice::toString)
-                .collect(Collectors.joining("\n--------\n"));
-
-        //log.info("devices: {}",devs);
-
-        //closeRoom(client);
-
-        client.devices.stream()
-                .filter(dev -> dev.getType().equals("HM-LC-Bl1-FM"))
-                .filter(dev -> dev.getName().contains("Büro"))
-                .map(Blinds::wrap)
-                .forEach(Blinds::close);
-//                .map(Blinds::toString)
-//                .collect(Collectors.joining("\n"));
-
-        //log.info(out);
+    public static HomeMaticClient createAndDiscover(String host) {
+        HomeMaticClient client = null;
+        try {
+            client = new HomeMaticClient(host);
+            client.readTopology();
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            log.error("Error in discovery:", e);
+        }
+        return client;
     }
 
-    private static void closeRoom(HomeMaticClient client) {
-        List<HMDataPoint> points = client.collectDataPoints().stream()
-                .filter(dp -> dp.getType().equals("LEVEL") && dp.getDevice().getName().contains("Büro"))
-                .collect(Collectors.toList());
-
-        points.stream().forEach(dp -> dp.change("0.2"));
-
-        log.info("datapoints:\n{}", points.stream()
-                .map(dp ->
-                        dp.getIse_id() + ": " + dp.getType() + " of " + dp.getDevice().getName())
-                .collect(Collectors.joining("\n")));
+    public Set<HMDevice> getDevices() {
+        return devices;
     }
 
     public void readTopology() throws IOException, SAXException {
@@ -123,7 +103,7 @@ public class HomeMaticClient {
         return doc.getDocumentElement();
     }
 
-    protected Set<HMDataPoint> collectDataPoints() {
+    public Set<HMDataPoint> getAllDataPoints() {
         return devices
                 .stream()
                 .map(HMDevice::getChannels)
