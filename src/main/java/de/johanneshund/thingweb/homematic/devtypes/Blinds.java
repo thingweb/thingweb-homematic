@@ -6,18 +6,13 @@ import de.johanneshund.thingweb.homematic.impl.HMDevice;
 /**
  * Created by Johannes on 13.12.2015.
  */
-public class Blinds {
+public class Blinds extends DeviceFacade {
 
-    private final HMDevice device;
     private final HMDataPoint dpLevel;
 
-    private Blinds(HMDevice device) {
-        this.device = device;
+    protected Blinds(HMDevice device) {
+        super(device);
         dpLevel = device.getChannels().get(1).getDataPoints().get("LEVEL");
-    }
-
-    public final static Blinds wrap(HMDevice device) {
-        return new Blinds(device);
     }
 
     public void open() {

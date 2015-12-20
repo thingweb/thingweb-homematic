@@ -1,5 +1,6 @@
 package de.johanneshund.thingweb.homematic;
 
+import de.johanneshund.thingweb.homematic.devtypes.DeviceFacade;
 import de.johanneshund.thingweb.homematic.impl.HMDataPoint;
 import de.johanneshund.thingweb.homematic.impl.HMDevice;
 import de.johanneshund.thingweb.homematic.util.DomHelper;
@@ -30,6 +31,7 @@ public class HomeMaticClient {
     private final String PREFIX;
     private final DocumentBuilder builder;
     private final Set<HMDevice> devices = new CopyOnWriteArraySet<>();
+    private Set<DeviceFacade> facades;
 
     public HomeMaticClient(String host) throws ParserConfigurationException {
         this.PREFIX = "http://" + host + "/addons/xmlapi/";
@@ -51,18 +53,22 @@ public class HomeMaticClient {
         return client;
     }
 
+    public Set<DeviceFacade> getFacades() {
+        return facades;
+    }
+
     public Set<HMDevice> getDevices() {
         return devices;
     }
 
     public void readTopology() throws IOException, SAXException {
+        log.debug("Reading topology from statelist");
         Element root = fetchReport("statelist.cgi");
-
-        log.debug("Root element {}", root.getNodeName());
         DomHelper.forEachNode(root.getChildNodes(),
                 (deviceNode) -> devices.add(HMDevice.fromNode(deviceNode, this)));
 
         // device type is only listed in devicelist, matching via ise_id
+        log.debug("Identifying device types based on devicelist");
         Map<Integer,String> devTypes = new HashMap<>();
         root = fetchReport("devicelist.cgi");
         DomHelper.forEachNode(root.getChildNodes(),
@@ -72,6 +78,8 @@ public class HomeMaticClient {
                 )
         );
         devices.forEach((hmDevice -> hmDevice.setType(devTypes.get(hmDevice.getIse_id()))));
+
+        facades = devices.parallelStream().map(DeviceFacade::wrap).collect(Collectors.toSet());
     }
 
     public void changeValue(int ise_id, String value) throws IOException {

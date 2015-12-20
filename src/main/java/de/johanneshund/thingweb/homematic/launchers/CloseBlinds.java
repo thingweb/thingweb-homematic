@@ -10,10 +10,10 @@ public class CloseBlinds {
     public static void main(String[] args) {
         HomeMaticClient client = HomeMaticClient.createAndDiscover("192.168.178.20");
 
-        client.getDevices().stream()
-                .filter(dev -> dev.getType().equals("HM-LC-Bl1-FM"))
+        client.getFacades().parallelStream()
+                .filter(dev -> dev instanceof Blinds)
+                .map(dev -> (Blinds) dev)
                 .filter(dev -> dev.getName().contains("Büro"))
-                .map(Blinds::wrap)
-                .forEach(Blinds::close);
+                .forEach(Blinds::open);
     }
 }
