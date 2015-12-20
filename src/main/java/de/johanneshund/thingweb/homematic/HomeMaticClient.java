@@ -6,7 +6,6 @@ import de.johanneshund.thingweb.homematic.impl.HMDevice;
 import de.johanneshund.thingweb.homematic.util.DomHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -106,9 +105,7 @@ public class HomeMaticClient {
 
     private Element fetchReport(String script) throws SAXException, IOException {
         final String uri = PREFIX + script;
-        final Document doc = builder.parse(uri);
-        doc.normalizeDocument();
-        return doc.getDocumentElement();
+        return DomHelper.parseDocument(uri);
     }
 
     public Set<HMDataPoint> getAllDataPoints() {

@@ -31,6 +31,7 @@ public class DeviceFacade {
                 break;
             case DevTypes.KEYMATIC:
                 res = new KeyMatic(device);
+                break;
             default:
                 res = new UnkownDevice(device);
         }

@@ -63,6 +63,16 @@ public class HMDataPoint extends HMData {
         }
     }
 
+    public float readFloat() {
+        try {
+            log.debug("reading data point {}...", this.name);
+            return Float.parseFloat(device.getClient().readValue(this));
+        } catch (IOException e) {
+            log.warn("FAILED", e);
+            return Float.NaN;
+        }
+    }
+
     public HMDevice getDevice() {
         return device;
     }
@@ -98,5 +108,15 @@ public class HMDataPoint extends HMData {
                 ", operations=" + operations +
                 ", timestamp=" + timestamp +
                 '}';
+    }
+
+    public int readInt() {
+        try {
+            log.debug("reading data point {}...", this.name);
+            return Integer.parseInt(device.getClient().readValue(this));
+        } catch (IOException e) {
+            log.warn("FAILED", e);
+            return -1; //TODO how to handle read errors
+        }
     }
 }
