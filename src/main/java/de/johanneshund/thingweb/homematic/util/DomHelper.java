@@ -18,7 +18,6 @@ import java.util.function.Consumer;
 public class DomHelper {
 
     private static final DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-
     private static final ThreadLocal<DocumentBuilder> reusedBuilder
             = new ThreadLocal<DocumentBuilder>() {
         @Override
@@ -31,6 +30,7 @@ public class DomHelper {
         }
     };
 
+    private DomHelper() {}
 
     private static DocumentBuilder getBuilder() {
         DocumentBuilder builder = reusedBuilder.get();

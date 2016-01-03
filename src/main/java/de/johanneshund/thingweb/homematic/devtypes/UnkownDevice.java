@@ -1,11 +1,11 @@
 package de.johanneshund.thingweb.homematic.devtypes;
 
-import de.johanneshund.thingweb.homematic.impl.HMChannel;
 import de.johanneshund.thingweb.homematic.impl.HMDevice;
+import de.thingweb.servient.ThingInterface;
+import de.thingweb.thing.Property;
+import de.thingweb.thing.Thing;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Arrays;
 
 /**
  * Created by Johannes on 20.12.2015.
@@ -17,12 +17,20 @@ public class UnkownDevice extends DeviceFacade {
         super(device);
     }
 
-    public String[] getDataPointNames() {
-        return device.getChannels().stream()
-                .map(HMChannel::getDataPoints)
-                .map(Map::keySet)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList())
-                .toArray(new String[0]);
+    @Override
+    protected void addInteractions(Thing result) {
+        Arrays.asList(getDataPointNames()).stream()
+                .map(name -> Property
+                        .getBuilder(name)
+                        .setReadable(true)
+                        .setWriteable(true)
+                        .build())
+                .forEach(prop -> result.addProperty(prop));
     }
+
+    @Override
+    public void attachTo(ThingInterface thingInterface) {
+        
+    }
+
 }

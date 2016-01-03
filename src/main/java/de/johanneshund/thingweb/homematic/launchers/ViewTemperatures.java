@@ -13,14 +13,14 @@ public class ViewTemperatures {
         client.getFacades().stream()
                 .filter(df -> df instanceof Heating)
                 .map(df -> (Heating) df)
-                .forEach(Heating::printData);
-//               .forEach(heating -> {
-//                   System.out.println(heating.getName()
-//                           + ": ist = " + heating.getActualTemperature()
-//                           + " soll = " + heating.getSetTemperature()
-//                           + " ventil = " + heating.getValveState()
-//                           + " mode = " + heating.getMode()
-//                   );
-//               });
+//                .forEach(Heating::printData)
+                .forEach(heating -> {
+                    System.out.println(heating.getName()
+                            + ": ist = " + heating.getActualTemperature()
+                            + " soll = " + heating.getSetTemperature()
+                            + " ventil = " + heating.getValveState()
+                            + " mode = " + heating.getMode()
+                    );
+                });
     }
 }
