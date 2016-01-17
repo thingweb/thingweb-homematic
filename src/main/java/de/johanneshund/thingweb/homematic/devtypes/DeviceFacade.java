@@ -18,6 +18,7 @@ public abstract class DeviceFacade {
 
     protected static final Logger log = LoggerFactory.getLogger(DeviceFacade.class);
     protected final HMDevice device;
+    protected ThingInterface thing;
 
     public DeviceFacade(HMDevice device) {
         this.device = device;
@@ -48,19 +49,9 @@ public abstract class DeviceFacade {
 
     }
 
-    public Thing getThing() {
-        Thing result = new Thing(this.device.getName());
-        addInteractions(result);
-        return result;
-    }
-
-    protected abstract void addInteractions(final Thing result);
-
     public String getName() {
         return device.getName();
     }
-
-    public abstract void attachTo(ThingInterface thingInterface);
 
     public String[] getDataPointNames() {
         return device.getChannels().stream()
@@ -70,6 +61,24 @@ public abstract class DeviceFacade {
                 .collect(Collectors.toList())
                 .toArray(new String[0]);
     }
+
+    public final Thing getThing() {
+        Thing result = new Thing(this.device.getName());
+        addInteractions(result);
+        return result;
+    }
+
+    public final void bind(ThingInterface thingInterface) {
+        this.thing = thingInterface;
+        addListeners();
+        update();
+    }
+
+    protected abstract void addInteractions(final Thing result);
+
+    protected abstract void addListeners();
+
+    public abstract void update();
 
     public static final class DevTypes {
         public static final String BLINDS = "HM-LC-Bl1-FM";

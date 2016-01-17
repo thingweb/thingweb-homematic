@@ -2,7 +2,6 @@ package de.johanneshund.thingweb.homematic.devtypes;
 
 import de.johanneshund.thingweb.homematic.impl.HMDataPoint;
 import de.johanneshund.thingweb.homematic.impl.HMDevice;
-import de.thingweb.servient.ThingInterface;
 import de.thingweb.thing.Property;
 import de.thingweb.thing.Thing;
 import de.thingweb.util.encoding.ContentHelper;
@@ -37,16 +36,27 @@ public class Heating extends DeviceFacade {
 
         result.addProperty(actual);
         result.addProperty(settemp);
+        result.addProperty(
+                Property.getBuilder("valve")
+                        .setReadable(true)
+                        .setXsdType("xsd:float")
+                        .build()
+        );
     }
 
     @Override
-    public void attachTo(ThingInterface thingInterface) {
-        thingInterface.setProperty("actual", getActualTemperature());
-        thingInterface.setProperty("settemp", getSetTemperature());
-        thingInterface.onUpdate("settemp", (obj) -> {
+    public void addListeners() {
+        thing.onUpdate("settemp", (obj) -> {
             final Float ntemp = ContentHelper.ensureClass(obj, Float.class);
             setSetTemperature(ntemp.floatValue());
         });
+    }
+
+    @Override
+    public void update() {
+        thing.setProperty("actual", getActualTemperature());
+        thing.setProperty("settemp", getSetTemperature());
+        thing.setProperty("valve", getValveState());
     }
 
     public void printData() {

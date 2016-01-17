@@ -1,7 +1,6 @@
 package de.johanneshund.thingweb.homematic.devtypes;
 
 import de.johanneshund.thingweb.homematic.impl.HMDevice;
-import de.thingweb.servient.ThingInterface;
 import de.thingweb.thing.Property;
 import de.thingweb.thing.Thing;
 
@@ -25,12 +24,17 @@ public class UnkownDevice extends DeviceFacade {
                         .setReadable(true)
                         .setWriteable(true)
                         .build())
-                .forEach(prop -> result.addProperty(prop));
+                .forEach(result::addProperty);
     }
 
     @Override
-    public void attachTo(ThingInterface thingInterface) {
-        
+    protected void addListeners() {
+        //fo each property add change listener and update on HM
+    }
+
+    @Override
+    public void update() {
+        //for each property, fetch from HM
     }
 
 }

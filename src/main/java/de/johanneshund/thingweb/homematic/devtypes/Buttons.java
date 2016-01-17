@@ -1,7 +1,6 @@
 package de.johanneshund.thingweb.homematic.devtypes;
 
 import de.johanneshund.thingweb.homematic.impl.HMDevice;
-import de.thingweb.servient.ThingInterface;
 import de.thingweb.thing.Thing;
 
 /**
@@ -18,7 +17,12 @@ public class Buttons extends DeviceFacade {
     }
 
     @Override
-    public void attachTo(ThingInterface thingInterface) {
+    protected void addListeners() {
+
+    }
+
+    @Override
+    public void update() {
 
     }
 }

@@ -2,7 +2,6 @@ package de.johanneshund.thingweb.homematic.devtypes;
 
 import de.johanneshund.thingweb.homematic.impl.HMDataPoint;
 import de.johanneshund.thingweb.homematic.impl.HMDevice;
-import de.thingweb.servient.ThingInterface;
 import de.thingweb.thing.Action;
 import de.thingweb.thing.Property;
 import de.thingweb.thing.Thing;
@@ -35,23 +34,33 @@ public class Blinds extends DeviceFacade {
     }
 
     @Override
-    public void attachTo(ThingInterface thingInterface) {
-        thingInterface.onInvoke("open", (ignored) -> {
+    public void addListeners() {
+        thing.onInvoke("open", (ignored) -> {
             this.open();
             return null;
         });
 
-        thingInterface.onInvoke("close", (ignored) -> {
+        thing.onInvoke("close", (ignored) -> {
             this.close();
             return null;
         });
 
-        thingInterface.setProperty("level", getLevel());
-        thingInterface.onUpdate("level", (nlvl) -> {
-            ContentHelper.ensureClass(nlvl, Integer.class);
-            setLevel((float) nlvl / 100);
+        thing.onUpdate("level", (nlvl) -> {
+            //TODO teach ContentHelper about float and double since Java sucks
+            if (nlvl instanceof Float)
+                setLevel(((Float) nlvl).floatValue());
+            else {
+                final Double aDouble = ContentHelper.ensureClass(nlvl, Double.class);
+                setLevel(aDouble.floatValue());
+            }
         });
     }
+
+    @Override
+    public void update() {
+        thing.setProperty("level", getLevel());
+    }
+
 
     public void open() {
         dpLevel.change("1.0");
@@ -70,7 +79,9 @@ public class Blinds extends DeviceFacade {
     }
 
     public void setLevel(float level) {
-        dpLevel.change(String.valueOf(level));
+        final float diff = Math.abs(getLevel() - level);
+        if (diff > 0.01)
+            dpLevel.change(String.valueOf(level));
     }
 
     @Override
