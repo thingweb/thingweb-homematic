@@ -1,7 +1,7 @@
-package de.johanneshund.thingweb.homematic.devtypes;
+package de.thingweb.homematic.devtypes;
 
-import de.johanneshund.thingweb.homematic.impl.HMDataPoint;
-import de.johanneshund.thingweb.homematic.impl.HMDevice;
+import de.thingweb.homematic.impl.HMDataPoint;
+import de.thingweb.homematic.impl.HMDevice;
 import de.thingweb.thing.Action;
 import de.thingweb.thing.Property;
 import de.thingweb.thing.Thing;

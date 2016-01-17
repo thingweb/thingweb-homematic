@@ -1,7 +1,7 @@
-package de.johanneshund.thingweb.homematic.impl;
+package de.thingweb.homematic.impl;
 
-import de.johanneshund.thingweb.homematic.HomeMaticClient;
-import de.johanneshund.thingweb.homematic.util.DomHelper;
+import de.thingweb.homematic.HomeMaticClient;
+import de.thingweb.homematic.util.DomHelper;
 import org.w3c.dom.Node;
 
 import java.util.LinkedList;

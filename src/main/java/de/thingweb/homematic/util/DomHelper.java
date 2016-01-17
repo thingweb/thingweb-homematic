@@ -1,4 +1,4 @@
-package de.johanneshund.thingweb.homematic.util;
+package de.thingweb.homematic.util;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

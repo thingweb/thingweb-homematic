@@ -1,7 +1,7 @@
-package de.johanneshund.thingweb.homematic.launchers;
+package de.thingweb.homematic.launchers;
 
-import de.johanneshund.thingweb.homematic.HomeMaticClient;
-import de.johanneshund.thingweb.homematic.impl.HMDevice;
+import de.thingweb.homematic.HomeMaticClient;
+import de.thingweb.homematic.impl.HMDevice;
 
 import java.util.stream.Collectors;
 

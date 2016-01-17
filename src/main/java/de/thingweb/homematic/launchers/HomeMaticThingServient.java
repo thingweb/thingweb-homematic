@@ -1,7 +1,7 @@
-package de.johanneshund.thingweb.homematic.launchers;
+package de.thingweb.homematic.launchers;
 
-import de.johanneshund.thingweb.homematic.HomeMaticClient;
-import de.johanneshund.thingweb.homematic.devtypes.DeviceFacade;
+import de.thingweb.homematic.HomeMaticClient;
+import de.thingweb.homematic.devtypes.DeviceFacade;
 import de.thingweb.servient.ServientBuilder;
 import de.thingweb.servient.ThingInterface;
 import de.thingweb.servient.ThingServer;

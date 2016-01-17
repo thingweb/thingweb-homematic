@@ -1,9 +1,9 @@
-package de.johanneshund.thingweb.homematic;
+package de.thingweb.homematic;
 
-import de.johanneshund.thingweb.homematic.devtypes.DeviceFacade;
-import de.johanneshund.thingweb.homematic.impl.HMDataPoint;
-import de.johanneshund.thingweb.homematic.impl.HMDevice;
-import de.johanneshund.thingweb.homematic.util.DomHelper;
+import de.thingweb.homematic.devtypes.DeviceFacade;
+import de.thingweb.homematic.impl.HMDataPoint;
+import de.thingweb.homematic.impl.HMDevice;
+import de.thingweb.homematic.util.DomHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;

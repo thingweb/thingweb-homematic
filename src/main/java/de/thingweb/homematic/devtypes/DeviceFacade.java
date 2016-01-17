@@ -1,7 +1,7 @@
-package de.johanneshund.thingweb.homematic.devtypes;
+package de.thingweb.homematic.devtypes;
 
-import de.johanneshund.thingweb.homematic.impl.HMChannel;
-import de.johanneshund.thingweb.homematic.impl.HMDevice;
+import de.thingweb.homematic.impl.HMChannel;
+import de.thingweb.homematic.impl.HMDevice;
 import de.thingweb.servient.ThingInterface;
 import de.thingweb.thing.Thing;
 import org.slf4j.Logger;

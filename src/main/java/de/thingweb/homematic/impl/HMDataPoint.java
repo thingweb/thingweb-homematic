@@ -1,6 +1,6 @@
-package de.johanneshund.thingweb.homematic.impl;
+package de.thingweb.homematic.impl;
 
-import de.johanneshund.thingweb.homematic.util.DomHelper;
+import de.thingweb.homematic.util.DomHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.NamedNodeMap;

@@ -1,9 +1,11 @@
-group 'de.johanneshund.thingweb'
-version '1.0-SNAPSHOT'
+group 'com.github.thingweb'
+version '0.1.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'application'
 
 sourceCompatibility = 1.8
+mainClassName = "de.thingweb.homematic.launchers.HomeMaticThingServient"
 
 repositories {
     maven { url "https://jitpack.io" }

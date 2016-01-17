@@ -1,4 +1,4 @@
-package de.johanneshund.thingweb.homematic.impl;
+package de.thingweb.homematic.impl;
 
 import java.util.HashMap;
 import java.util.Map;

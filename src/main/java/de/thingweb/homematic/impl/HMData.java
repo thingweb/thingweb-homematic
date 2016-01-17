@@ -1,4 +1,4 @@
-package de.johanneshund.thingweb.homematic.impl;
+package de.thingweb.homematic.impl;
 
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;

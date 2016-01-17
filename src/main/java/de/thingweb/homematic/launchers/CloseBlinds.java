@@ -1,7 +1,7 @@
-package de.johanneshund.thingweb.homematic.launchers;
+package de.thingweb.homematic.launchers;
 
-import de.johanneshund.thingweb.homematic.HomeMaticClient;
-import de.johanneshund.thingweb.homematic.devtypes.Blinds;
+import de.thingweb.homematic.HomeMaticClient;
+import de.thingweb.homematic.devtypes.Blinds;
 
 /**
  * Created by Johannes on 18.12.2015.
