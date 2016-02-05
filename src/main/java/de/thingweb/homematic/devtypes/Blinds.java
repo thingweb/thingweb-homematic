@@ -46,13 +46,8 @@ public class Blinds extends DeviceFacade {
         });
 
         thing.onUpdate("level", (nlvl) -> {
-            //TODO teach ContentHelper about float and double since Java sucks
-            if (nlvl instanceof Float)
-                setLevel(((Float) nlvl).floatValue());
-            else {
-                final Double aDouble = ContentHelper.ensureClass(nlvl, Double.class);
-                setLevel(aDouble.floatValue());
-            }
+            final Number number = ContentHelper.ensureClass(nlvl, Number.class);
+            setLevel(number.floatValue());
         });
     }
 

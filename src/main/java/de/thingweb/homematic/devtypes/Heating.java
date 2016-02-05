@@ -2,6 +2,7 @@ package de.thingweb.homematic.devtypes;
 
 import de.thingweb.homematic.impl.HMDataPoint;
 import de.thingweb.homematic.impl.HMDevice;
+import de.thingweb.thing.Action;
 import de.thingweb.thing.Property;
 import de.thingweb.thing.Thing;
 import de.thingweb.util.encoding.ContentHelper;
@@ -34,21 +35,50 @@ public class Heating extends DeviceFacade {
                 .setWriteable(true)
                 .build();
 
-        result.addProperty(actual);
-        result.addProperty(settemp);
-        result.addProperty(
+        result.addProperties(
+                actual,
+                settemp,
                 Property.getBuilder("valve")
                         .setReadable(true)
                         .setXsdType("xsd:float")
                         .build()
+        );
+
+        result.addActions(
+                Action.getBuilder("comfort").build(),
+                Action.getBuilder("lower").build(),
+                Action.getBuilder("boost").build(),
+                Action.getBuilder("auto").build(),
+                Action.getBuilder("manual").setInputType("xsd:float").build()
         );
     }
 
     @Override
     public void addListeners() {
         thing.onUpdate("settemp", (obj) -> {
-            final Float ntemp = ContentHelper.ensureClass(obj, Float.class);
+            final Number ntemp = ContentHelper.ensureClass(obj, Number.class);
             setSetTemperature(ntemp.floatValue());
+        });
+
+        thing.onInvoke("boost", (o) -> {
+            return dataPoints.get("BOOST_MODE").change("true");
+        });
+
+        thing.onInvoke("lower", (o) -> {
+            return dataPoints.get("LOWERING_MODE").change("true");
+        });
+
+        thing.onInvoke("comfort", (o) -> {
+            return dataPoints.get("COMFORT_MODE").change("true");
+        });
+
+        thing.onInvoke("auto", (o) -> {
+            return dataPoints.get("AUTO_MODE").change("true");
+        });
+
+        thing.onInvoke("manual", (o) -> {
+            final Number number = ContentHelper.ensureClass(o, Number.class);
+            return dataPoints.get("MANUAL_MODE").change(number.toString());
         });
     }
 
@@ -76,7 +106,11 @@ public class Heating extends DeviceFacade {
     }
 
     public boolean setSetTemperature(float setTemperature) {
-        return dataPoints.get("SET_TEMPERATURE").change(String.valueOf(setTemperature));
+        if (Math.abs(getSetTemperature() - setTemperature) > 0.49) {
+            return dataPoints.get("SET_TEMPERATURE").change(String.valueOf(setTemperature));
+        } else {
+            return false;
+        }
     }
 
     public float getValveState() {
