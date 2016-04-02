@@ -29,6 +29,7 @@ public class HomeMaticThingServient {
     private ThingInterface gwInterface;
 
     public HomeMaticThingServient(String ccu) throws Exception {
+        ServientBuilder.getHttpBinding().setPort(8088);
         ServientBuilder.initialize();
         server = ServientBuilder.newThingServer();
         gwInterface = addGatewayinterface(server);
@@ -94,17 +95,17 @@ public class HomeMaticThingServient {
         gwInterface = this.server.addThing(hmGateway);
 
         //wire it
-        gwInterface.onInvoke("updateCache", (o) -> {
+        gwInterface.onActionInvoke("updateCache", (o) -> {
             updateCache();
             return null;
         });
 
-        gwInterface.onUpdate("pollRate", (nV) -> {
+        gwInterface.onPropertyUpdate("pollRate", (nV) -> {
             final int value = ContentHelper.ensureClass(nV, Number.class).intValue();
             rescheduleCacheUpdate(value);
         });
 
-        gwInterface.onUpdate("ccu", (nV) -> {
+        gwInterface.onPropertyUpdate("ccu", (nV) -> {
             final String value = ContentHelper.ensureClass(nV, String.class);
             setCcu(value);
         });

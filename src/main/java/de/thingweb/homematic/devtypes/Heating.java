@@ -55,28 +55,28 @@ public class Heating extends DeviceFacade {
 
     @Override
     public void addListeners() {
-        thing.onUpdate("settemp", (obj) -> {
+        thing.onPropertyUpdate("settemp", (obj) -> {
             final Number ntemp = ContentHelper.ensureClass(obj, Number.class);
             setSetTemperature(ntemp.floatValue());
         });
 
-        thing.onInvoke("boost", (o) -> {
+        thing.onActionInvoke("boost", (o) -> {
             return dataPoints.get("BOOST_MODE").change("true");
         });
 
-        thing.onInvoke("lower", (o) -> {
+        thing.onActionInvoke("lower", (o) -> {
             return dataPoints.get("LOWERING_MODE").change("true");
         });
 
-        thing.onInvoke("comfort", (o) -> {
+        thing.onActionInvoke("comfort", (o) -> {
             return dataPoints.get("COMFORT_MODE").change("true");
         });
 
-        thing.onInvoke("auto", (o) -> {
+        thing.onActionInvoke("auto", (o) -> {
             return dataPoints.get("AUTO_MODE").change("true");
         });
 
-        thing.onInvoke("manual", (o) -> {
+        thing.onActionInvoke("manual", (o) -> {
             final Number number = ContentHelper.ensureClass(o, Number.class);
             return dataPoints.get("MANUAL_MODE").change(number.toString());
         });

@@ -35,17 +35,17 @@ public class Blinds extends DeviceFacade {
 
     @Override
     public void addListeners() {
-        thing.onInvoke("open", (ignored) -> {
+        thing.onActionInvoke("open", (ignored) -> {
             this.open();
             return null;
         });
 
-        thing.onInvoke("close", (ignored) -> {
+        thing.onActionInvoke("close", (ignored) -> {
             this.close();
             return null;
         });
 
-        thing.onUpdate("level", (nlvl) -> {
+        thing.onPropertyUpdate("level", (nlvl) -> {
             final Number number = ContentHelper.ensureClass(nlvl, Number.class);
             setLevel(number.floatValue());
         });

@@ -37,15 +37,15 @@ public class KeyMatic extends DeviceFacade {
 
     @Override
     protected void addListeners() {
-        thing.onUpdate("state", (nV) -> {
+        thing.onPropertyUpdate("state", (nV) -> {
             final boolean value = ContentHelper.ensureClass(nV, Boolean.class);
             final boolean oV = dpState.readBoolean();
             if (value != oV)
                 dpState.change(String.valueOf(value));
         });
 
-        thing.onInvoke("open", (o) -> dpState.change("true"));
-        thing.onInvoke("close", (o) -> dpState.change("false"));
+        thing.onActionInvoke("open", (o) -> dpState.change("true"));
+        thing.onActionInvoke("close", (o) -> dpState.change("false"));
     }
 
     @Override
