@@ -2,6 +2,7 @@ package de.thingweb.homematic.launchers;
 
 import de.thingweb.homematic.HomeMaticClient;
 import de.thingweb.homematic.devtypes.DeviceFacade;
+import de.thingweb.homematic.impl.HMProgram;
 import de.thingweb.servient.ServientBuilder;
 import de.thingweb.servient.ThingInterface;
 import de.thingweb.servient.ThingServer;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -35,12 +37,38 @@ public class HomeMaticThingServient {
         gwInterface = addGatewayinterface(server);
         //setCcu(ccu);
         gwInterface.setProperty("ccu", ccu);
+        addCcuDevice();
         updateCache();
     }
 
     public static void main(String[] args) throws Exception {
         final HomeMaticThingServient hmServient = new HomeMaticThingServient("192.168.178.20");
         hmServient.start();
+    }
+
+    private void addCcuDevice() {
+        Thing ccu = new Thing("CCU");
+
+        final List<HMProgram> programs = client.getPrograms();
+        log.debug("got programs: {}", programs);
+
+        programs.stream()
+                .map((prog) -> Action
+                        .getBuilder(prog.getName())
+                        .setOutputType("xsd:boolean")
+                        .build()
+                )
+                .forEach(ccu::addAction);
+
+        final ThingInterface ccuInst = server.addThing(ccu);
+
+        programs.forEach(prog -> {
+            ccuInst.onActionInvoke(prog.getName(), (nn) -> {
+                client.runProgram(prog.getId());
+                return true;
+            });
+
+        });
     }
 
     public void rescheduleCacheUpdate(int delay) {

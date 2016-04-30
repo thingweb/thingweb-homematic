@@ -3,6 +3,7 @@ package de.thingweb.homematic;
 import de.thingweb.homematic.devtypes.DeviceFacade;
 import de.thingweb.homematic.impl.HMDataPoint;
 import de.thingweb.homematic.impl.HMDevice;
+import de.thingweb.homematic.impl.HMProgram;
 import de.thingweb.homematic.util.DomHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +14,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
@@ -150,6 +148,39 @@ public class HomeMaticClient {
         }
 
 
+    }
+
+    public List<HMProgram> getPrograms() {
+        List<HMProgram> res = new LinkedList<>();
+
+        try {
+            Element root = fetchReport("programlist.cgi");
+            DomHelper.forEachNode(root.getChildNodes(),
+                    (progNode) -> {
+                        HMProgram prog = new HMProgram(
+                                Integer.parseInt(DomHelper.getAttributeValue(progNode, "id")),
+                                DomHelper.getAttributeValue(progNode, "name"),
+                                DomHelper.getAttributeValue(progNode, "description"),
+                                Long.parseLong(DomHelper.getAttributeValue(progNode, "timestamp"))
+                        );
+                        res.add(prog);
+                    }
+            );
+        } catch (IOException | SAXException e) {
+            log.error("failed loading programs from ccu", e);
+        }
+        return res;
+    }
+
+    public void runProgram(int id) {
+        final String uri = "%s/runprogram.cgi?program_id=%d";
+        URL url = null;
+        try {
+            url = new URL(String.format(uri, PREFIX, id));
+            url.openStream();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 

@@ -1,5 +1,7 @@
 package de.thingweb.homematic.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -16,6 +18,8 @@ import java.util.function.Consumer;
  * Created by Johannes on 12.12.2015.
  */
 public class DomHelper {
+
+    protected static final Logger log = LoggerFactory.getLogger(DomHelper.class);
 
     private static final DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
     private static final ThreadLocal<DocumentBuilder> reusedBuilder
@@ -39,7 +43,12 @@ public class DomHelper {
     }
 
     public static String getAttributeValue(Node node, String attributeName) {
-        return node.getAttributes().getNamedItem(attributeName).getNodeValue();
+        final Node namedItem = node.getAttributes().getNamedItem(attributeName);
+        if (namedItem == null) {
+            log.warn("item {} not found in node {}", attributeName, node);
+            return "";
+        } else
+            return namedItem.getNodeValue();
     }
 
     public static void forEachNode(NodeList devNodes, Consumer<Node> callback) {
